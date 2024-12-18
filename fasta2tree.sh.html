@@ -1,0 +1,36 @@
+<html>
+<head>
+<title>fasta2tree.sh</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #8c8c8c; font-style: italic;}
+.s1 { color: #080808;}
+.s2 { color: #0033b3;}
+.s3 { color: #0073bf;}
+.s4 { color: #000000;}
+.s5 { color: #1750eb;}
+</style>
+</head>
+<body bgcolor="#ffffff">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#c0c0c0" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+fasta2tree.sh</font>
+</center></td></tr></table>
+<pre><span class="s0">##批量构树每次20棵</span>
+<span class="s0">##fa文件夹同级有treefile等文件夹</span>
+
+
+<span class="s2">for </span><span class="s1">i </span><span class="s2">in </span><span class="s3">`</span><span class="s1">ls </span>$pwd<span class="s1">*.fasta</span><span class="s3">`</span>
+<span class="s2">do</span>
+<span class="s1">i=</span><span class="s2">$</span><span class="s1">{i/*\//}</span>
+<span class="s1">i=</span><span class="s2">$</span><span class="s1">{i/.fasta/}</span>
+<span class="s1">mkdir </span><span class="s2">$</span><span class="s1">{i}iqtree</span>
+<span class="s1">cd </span><span class="s2">$</span><span class="s1">{i}iqtree</span>
+<span class="s1">mv ../</span><span class="s2">$</span><span class="s1">{i}.fasta ./</span>
+<span class="s1">nohup mafft.bat --auto </span><span class="s2">$</span><span class="s1">{i}.fasta </span><span class="s2">&gt; $</span><span class="s1">{i}.aln </span><span class="s2">&amp;&amp; </span><span class="s1">trimal -in </span><span class="s2">$</span><span class="s1">{i}.aln -out </span><span class="s2">$</span><span class="s1">{i}.phy  -phylip -automated1 </span><span class="s2">&amp;&amp; </span><span class="s1">nohup iqtree2 -s </span><span class="s2">$</span><span class="s1">{i}.phy --prefix </span><span class="s2">$</span><span class="s1">{i} -T AUTO --threads-max </span><span class="s5">8 </span><span class="s1">-B </span><span class="s5">3000 </span><span class="s1">--bnni -m MFP </span><span class="s2">&amp;&amp; </span><span class="s1">cp  </span><span class="s2">$</span><span class="s1">{i}.aln ../../aln </span><span class="s2">&amp;&amp; </span><span class="s1">cp </span><span class="s2">$</span><span class="s1">{i}.phy ../../phy </span><span class="s2">&amp;&amp; </span><span class="s1">cp </span><span class="s2">$</span><span class="s1">{i}.treefile ../../treefile &amp;</span>
+<span class="s1">cd ..</span>
+<span class="s2">done</span>
+</pre>
+</body>
+</html>

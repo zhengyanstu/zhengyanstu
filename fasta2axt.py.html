@@ -1,0 +1,46 @@
+<html>
+<head>
+<title>fasta2axt.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #8c8c8c; font-style: italic;}
+.s1 { color: #080808;}
+.s2 { color: #0033b3;}
+.s3 { color: #067d17;}
+.s4 { color: #1750eb;}
+.s5 { color: #0037a6;}
+</style>
+</head>
+<body bgcolor="#ffffff">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#c0c0c0" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+fasta2axt.py</font>
+</center></td></tr></table>
+<pre><span class="s0">#!/usr/bin/env python</span>
+<span class="s0"># coding: utf-8</span>
+<span class="s0"># usage: python script.py input.fa &gt; output.axt</span>
+<span class="s2">import </span><span class="s1">sys</span>
+<span class="s2">def </span><span class="s1">converter(FileName):</span>
+	<span class="s1">Seq = {}; id_list = []</span>
+	<span class="s1">id = </span><span class="s3">''</span>
+	<span class="s2">with </span><span class="s1">open(FileName, </span><span class="s3">'r'</span><span class="s1">) </span><span class="s2">as </span><span class="s1">fr:</span>
+		<span class="s2">for </span><span class="s1">line </span><span class="s2">in </span><span class="s1">fr.readlines():</span>
+			<span class="s2">if </span><span class="s1">line[</span><span class="s4">0</span><span class="s1">] == </span><span class="s3">'&gt;'</span><span class="s1">:</span>
+				<span class="s1">id = line[</span><span class="s4">1</span><span class="s1">:].rstrip()</span>
+				<span class="s0">#id = header.split(&quot;_&quot;)[0]</span>
+				<span class="s1">id_list.append(id)</span>
+				<span class="s1">Seq[id] = </span><span class="s3">''</span>
+			<span class="s2">else</span><span class="s1">:</span>
+				<span class="s1">Seq[id] += line.rstrip()</span>
+	<span class="s2">return </span><span class="s1">Seq, id_list</span>
+<span class="s1">Seq, id_list = converter(sys.argv[</span><span class="s4">1</span><span class="s1">])</span>
+<span class="s1">header = </span><span class="s3">&quot;-&quot;</span><span class="s1">.join(id_list)</span>
+<span class="s1">print(header)</span>
+<span class="s1">newseq = []</span>
+<span class="s2">for </span><span class="s1">id </span><span class="s2">in </span><span class="s1">id_list:</span>
+	<span class="s1">newseq.append(Seq[id])</span>
+<span class="s1">newseq = </span><span class="s3">&quot;</span><span class="s5">\n</span><span class="s3">&quot;</span><span class="s1">.join(newseq)</span>
+<span class="s1">print(newseq)</span></pre>
+</body>
+</html>

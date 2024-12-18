@@ -1,0 +1,54 @@
+<html>
+<head>
+<title>fenpei.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #0033b3;}
+.s1 { color: #080808;}
+.s2 { color: #067d17;}
+.s3 { color: #1750eb;}
+.s4 { color: #8c8c8c; font-style: italic;}
+.s5 { color: #0037a6;}
+</style>
+</head>
+<body bgcolor="#ffffff">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#c0c0c0" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+fenpei.py</font>
+</center></td></tr></table>
+<pre><span class="s0">import </span><span class="s1">os</span>
+
+<span class="s0">def </span><span class="s1">parse_fasta(fasta_file):</span>
+    <span class="s1">sequences = {}</span>
+    <span class="s1">filename = fasta_file</span>
+    <span class="s1">prefix = os.path.basename(filename).split(</span><span class="s2">&quot;_cds.fasta&quot;</span><span class="s1">)[</span><span class="s3">0</span><span class="s1">]</span>
+    <span class="s0">with </span><span class="s1">open(fasta_file, </span><span class="s2">'r'</span><span class="s1">) </span><span class="s0">as </span><span class="s1">f:</span>
+        <span class="s1">gene_name = </span><span class="s2">''</span>
+        <span class="s0">for </span><span class="s1">line </span><span class="s0">in </span><span class="s1">f:</span>
+            <span class="s0">if </span><span class="s1">line.startswith(</span><span class="s2">'&gt;'</span><span class="s1">):</span>
+                <span class="s1">gene_name = line.strip().lstrip(</span><span class="s2">'&gt;'</span><span class="s1">)</span>
+                <span class="s1">sequences[gene_name] = </span><span class="s2">''</span>
+            <span class="s0">else</span><span class="s1">:</span>
+                <span class="s1">sequences[gene_name] += line.strip()</span>
+    <span class="s0">return </span><span class="s1">sequences,prefix</span>
+
+<span class="s0">def </span><span class="s1">write_sequences_to_files(sequences,prefix):</span>
+    <span class="s0">for </span><span class="s1">gene_name, sequence </span><span class="s0">in </span><span class="s1">sequences.items():</span>
+        <span class="s1">filename = gene_name + </span><span class="s2">&quot;.fasta&quot;</span>
+        <span class="s0">with </span><span class="s1">open(filename, </span><span class="s2">'a'</span><span class="s1">) </span><span class="s0">as </span><span class="s1">f:  </span><span class="s4"># 使用 'a' 模式追加写入</span>
+            <span class="s1">f.write(</span><span class="s2">&quot;&gt;&quot; </span><span class="s1">+ prefix + </span><span class="s2">&quot;</span><span class="s5">\n</span><span class="s2">&quot;</span><span class="s1">)  </span><span class="s4"># 修改基因名称</span>
+            <span class="s1">f.write(sequence + </span><span class="s2">&quot;</span><span class="s5">\n</span><span class="s2">&quot;</span><span class="s1">)</span>
+            
+
+<span class="s0">if </span><span class="s1">__name__ == </span><span class="s2">&quot;__main__&quot;</span><span class="s1">:</span>
+    <span class="s1">fasta_directory = input(</span><span class="s2">&quot;Enter the directory path containing fasta files: &quot;</span><span class="s1">)</span>
+    <span class="s0">for </span><span class="s1">filename </span><span class="s0">in </span><span class="s1">os.listdir(fasta_directory):</span>
+        <span class="s0">if </span><span class="s1">filename.endswith(</span><span class="s2">&quot;_cds.fasta&quot;</span><span class="s1">):</span>
+            <span class="s1">fasta_file = os.path.join(fasta_directory, filename)</span>
+            <span class="s1">existing_sequences, prefix = parse_fasta(fasta_file)</span>
+            <span class="s1">write_sequences_to_files(existing_sequences, prefix)</span>
+
+</pre>
+</body>
+</html>

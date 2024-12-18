@@ -1,0 +1,75 @@
+<html>
+<head>
+<title>extract_gene_from_gff.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #0033b3;}
+.s1 { color: #080808;}
+.s2 { color: #8c8c8c; font-style: italic;}
+.s3 { color: #067d17;}
+.s4 { color: #0037a6;}
+.s5 { color: #1750eb;}
+</style>
+</head>
+<body bgcolor="#ffffff">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#c0c0c0" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+extract_gene_from_gff.py</font>
+</center></td></tr></table>
+<pre><span class="s0">import </span><span class="s1">sys</span>
+<span class="s0">import </span><span class="s1">re</span>
+
+<span class="s0">def </span><span class="s1">extract_gene_lines(gff_file, output_file):</span>
+    <span class="s1">gene_count = {}  </span><span class="s2"># 用来记录每个基因名的出现次数</span>
+    <span class="s1">gene_lines = []  </span><span class="s2"># 用来存储所有修改后的基因行</span>
+
+    <span class="s0">with </span><span class="s1">open(gff_file, </span><span class="s3">'r'</span><span class="s1">) </span><span class="s0">as </span><span class="s1">gff:</span>
+        <span class="s0">for </span><span class="s1">line </span><span class="s0">in </span><span class="s1">gff:</span>
+            <span class="s0">if </span><span class="s1">line.startswith(</span><span class="s3">&quot;#&quot;</span><span class="s1">):</span>
+                <span class="s0">continue  </span><span class="s2"># 跳过注释行</span>
+
+            <span class="s1">columns = line.strip().split(</span><span class="s3">&quot;</span><span class="s4">\t</span><span class="s3">&quot;</span><span class="s1">)</span>
+            <span class="s0">if </span><span class="s1">columns[</span><span class="s5">2</span><span class="s1">] == </span><span class="s3">&quot;gene&quot;</span><span class="s1">:  </span><span class="s2"># 只选择类型为 &quot;gene&quot; 的行</span>
+                <span class="s2"># 提取 Name 字段并检查是否包含 'trn'</span>
+                <span class="s1">match = re.search(</span><span class="s3">'Name=([^\s;]+)'</span><span class="s1">, columns[</span><span class="s5">8</span><span class="s1">])  </span><span class="s2"># 使用正则提取 Name= 后，遇到空格或分号结束</span>
+                <span class="s0">if </span><span class="s1">match:</span>
+                    <span class="s1">gene_name = match.group(</span><span class="s5">1</span><span class="s1">)  </span><span class="s2"># 直接提取 Name= 后的内容</span>
+                    <span class="s2"># 如果 gene_name 已经出现过，则递增计数</span>
+                    <span class="s0">if </span><span class="s1">gene_name </span><span class="s0">not in </span><span class="s1">gene_count:</span>
+                        <span class="s1">gene_count[gene_name] = </span><span class="s5">1</span>
+                    <span class="s0">else</span><span class="s1">:</span>
+                        <span class="s1">gene_count[gene_name] += </span><span class="s5">1</span>
+
+                    <span class="s2"># 为重复基因命名，添加后缀</span>
+                    <span class="s0">if </span><span class="s1">gene_count[gene_name] &gt; </span><span class="s5">1</span><span class="s1">:</span>
+                        <span class="s1">new_gene_name = </span><span class="s3">f&quot;</span><span class="s4">{</span><span class="s1">gene_name</span><span class="s4">}</span><span class="s3">_</span><span class="s4">{</span><span class="s1">gene_count[gene_name]</span><span class="s4">}</span><span class="s3">&quot;</span>
+                    <span class="s0">else</span><span class="s1">:</span>
+                        <span class="s1">new_gene_name = gene_name</span>
+
+                    <span class="s2"># 替换原有的 Name 为带后缀的 Name</span>
+                    <span class="s1">modified_line = line.replace(gene_name, new_gene_name)</span>
+
+                    <span class="s2"># 添加到 gene_lines 列表</span>
+                    <span class="s1">gene_lines.append(modified_line)</span>
+
+    <span class="s2"># 根据基因的起始位置（即第四列）对行进行排序</span>
+    <span class="s1">gene_lines_sorted = sorted(gene_lines, key=</span><span class="s0">lambda </span><span class="s1">x: int(x.strip().split(</span><span class="s3">&quot;</span><span class="s4">\t</span><span class="s3">&quot;</span><span class="s1">)[</span><span class="s5">3</span><span class="s1">]))</span>
+
+    <span class="s2"># 将排序后的内容写入输出文件</span>
+    <span class="s0">with </span><span class="s1">open(output_file, </span><span class="s3">'w'</span><span class="s1">) </span><span class="s0">as </span><span class="s1">output:</span>
+        <span class="s0">for </span><span class="s1">line </span><span class="s0">in </span><span class="s1">gene_lines_sorted:</span>
+            <span class="s1">output.write(line)</span>
+
+<span class="s0">if </span><span class="s1">__name__ == </span><span class="s3">&quot;__main__&quot;</span><span class="s1">:</span>
+    <span class="s2"># 获取命令行参数</span>
+    <span class="s1">gff_file = sys.argv[</span><span class="s5">1</span><span class="s1">]  </span><span class="s2"># 输入的 GFF 文件</span>
+    <span class="s1">output_file = sys.argv[</span><span class="s5">2</span><span class="s1">]  </span><span class="s2"># 输出的文件</span>
+
+    <span class="s2"># 调用函数提取 gene 行</span>
+    <span class="s1">extract_gene_lines(gff_file, output_file)</span>
+
+    <span class="s1">print(</span><span class="s3">f&quot;提取的 gene 行已保存到 </span><span class="s4">{</span><span class="s1">output_file</span><span class="s4">}</span><span class="s3">&quot;</span><span class="s1">)</span>
+</pre>
+</body>
+</html>

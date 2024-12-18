@@ -1,0 +1,54 @@
+<html>
+<head>
+<title>concatenate.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #0033b3;}
+.s1 { color: #080808;}
+.s2 { color: #8c8c8c; font-style: italic;}
+.s3 { color: #067d17;}
+</style>
+</head>
+<body bgcolor="#ffffff">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#c0c0c0" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+concatenate.py</font>
+</center></td></tr></table>
+<pre><span class="s0">import </span><span class="s1">os</span>
+<span class="s0">from </span><span class="s1">Bio </span><span class="s0">import </span><span class="s1">SeqIO</span>
+<span class="s0">from </span><span class="s1">Bio.SeqRecord </span><span class="s0">import </span><span class="s1">SeqRecord</span>
+<span class="s0">from </span><span class="s1">Bio.Seq </span><span class="s0">import </span><span class="s1">Seq</span>
+<span class="s0">from </span><span class="s1">collections </span><span class="s0">import </span><span class="s1">defaultdict</span>
+
+<span class="s2"># 定义输入文件夹和输出文件的路径</span>
+<span class="s1">input_dir = </span><span class="s3">'C:/Users/lenovo/Desktop/shuyu/文章补充内容/26_yam_taxa_fourgene/ndhDF_trnQS'  </span><span class="s2"># 包含FASTA文件的文件夹路径</span>
+<span class="s1">output_file = </span><span class="s3">'C:/Users/lenovo/Desktop/shuyu/文章补充内容/26_yam_taxa_fourgene/ndhDF_trnQS/26_yam_taxa_ndhDF_trnQS.fasta'  </span><span class="s2"># 输出FASTA文件的路径</span>
+
+<span class="s2"># 存储序列的字典，键为序列ID，值为序列对象的列表</span>
+<span class="s1">sequences = defaultdict(list)</span>
+
+<span class="s2"># 遍历目录中的所有FASTA文件</span>
+<span class="s0">for </span><span class="s1">filename </span><span class="s0">in </span><span class="s1">os.listdir(input_dir):</span>
+    <span class="s0">if </span><span class="s1">filename.endswith(</span><span class="s3">&quot;.fasta&quot;</span><span class="s1">) </span><span class="s0">or </span><span class="s1">filename.endswith(</span><span class="s3">&quot;.fa&quot;</span><span class="s1">):  </span><span class="s2"># 确保文件是FASTA格式</span>
+        <span class="s1">filepath = os.path.join(input_dir, filename)</span>
+        <span class="s0">for </span><span class="s1">record </span><span class="s0">in </span><span class="s1">SeqIO.parse(filepath, </span><span class="s3">'fasta'</span><span class="s1">):</span>
+            <span class="s1">sequences[record.id].append(record.seq)</span>
+
+<span class="s2"># 准备写入文件</span>
+<span class="s1">concatenated_records = []</span>
+
+<span class="s2"># 合并同ID的序列</span>
+<span class="s0">for </span><span class="s1">seq_id, seq_list </span><span class="s0">in </span><span class="s1">sequences.items():</span>
+    <span class="s1">concatenated_seq = Seq(</span><span class="s3">''</span><span class="s1">.join(seq_list))  </span><span class="s2"># 将序列列表合并为一个长序列</span>
+    <span class="s1">concatenated_record = SeqRecord(concatenated_seq, id=seq_id, description=</span><span class="s3">'Concatenated sequence'</span><span class="s1">)</span>
+    <span class="s1">concatenated_records.append(concatenated_record)</span>
+
+<span class="s2"># 写入所有合并后的序列到一个单独的FASTA文件</span>
+<span class="s0">with </span><span class="s1">open(output_file, </span><span class="s3">'w'</span><span class="s1">) </span><span class="s0">as </span><span class="s1">output_handle:</span>
+    <span class="s1">SeqIO.write(concatenated_records, output_handle, </span><span class="s3">'fasta'</span><span class="s1">)</span>
+
+<span class="s1">print(</span><span class="s3">&quot;Concatenation complete. All sequences are saved to&quot;</span><span class="s1">, output_file)</span>
+</pre>
+</body>
+</html>

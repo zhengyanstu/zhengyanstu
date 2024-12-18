@@ -1,0 +1,74 @@
+<html>
+<head>
+<title>extract_sequence_with_partial_name.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #0033b3;}
+.s1 { color: #080808;}
+.s2 { color: #8c8c8c; font-style: italic;}
+.s3 { color: #067d17;}
+.s4 { color: #0037a6;}
+.s5 { color: #1750eb;}
+</style>
+</head>
+<body bgcolor="#ffffff">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#c0c0c0" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+extract_sequence_with_partial_name.py</font>
+</center></td></tr></table>
+<pre><span class="s0">import </span><span class="s1">sys</span>
+
+
+<span class="s0">def </span><span class="s1">extract_sequences(fasta_file, txt_file, output_file):</span>
+    <span class="s2">&quot;&quot;&quot; 
+    提取包含txt文件每一行内容的FASTA序列，并将其保存到新的文件中。 
+ 
+    :param fasta_file: 输入的FASTA文件路径 
+    :param txt_file: 包含关键词的txt文件路径 
+    :param output_file: 输出文件路径 
+    &quot;&quot;&quot;</span>
+    <span class="s2"># 读取txt文件的每一行，保存成列表</span>
+    <span class="s0">with </span><span class="s1">open(txt_file, </span><span class="s3">'r'</span><span class="s1">) </span><span class="s0">as </span><span class="s1">txt:</span>
+        <span class="s1">keywords = [line.strip() </span><span class="s0">for </span><span class="s1">line </span><span class="s0">in </span><span class="s1">txt.readlines()]</span>
+
+    <span class="s2"># 打开FASTA文件并处理</span>
+    <span class="s0">with </span><span class="s1">open(fasta_file, </span><span class="s3">'r'</span><span class="s1">) </span><span class="s0">as </span><span class="s1">fasta, open(output_file, </span><span class="s3">'w'</span><span class="s1">) </span><span class="s0">as </span><span class="s1">output:</span>
+        <span class="s1">sequence_name = </span><span class="s0">None</span>
+        <span class="s1">sequence_data = []</span>
+
+        <span class="s0">for </span><span class="s1">line </span><span class="s0">in </span><span class="s1">fasta:</span>
+            <span class="s1">line = line.strip()</span>
+
+            <span class="s0">if </span><span class="s1">line.startswith(</span><span class="s3">&quot;&gt;&quot;</span><span class="s1">):  </span><span class="s2"># 处理序列名称行</span>
+                <span class="s2"># 如果有之前的序列，检查是否匹配并写入</span>
+                <span class="s0">if </span><span class="s1">sequence_name </span><span class="s0">and </span><span class="s1">any(keyword </span><span class="s0">in </span><span class="s1">sequence_name </span><span class="s0">for </span><span class="s1">keyword </span><span class="s0">in </span><span class="s1">keywords):</span>
+                    <span class="s1">output.write(</span><span class="s3">f&quot;</span><span class="s4">{</span><span class="s1">sequence_name</span><span class="s4">}\n</span><span class="s3">&quot;</span><span class="s1">)</span>
+                    <span class="s1">output.write(</span><span class="s3">&quot;&quot;</span><span class="s1">.join(sequence_data) + </span><span class="s3">&quot;</span><span class="s4">\n</span><span class="s3">&quot;</span><span class="s1">)</span>
+
+                <span class="s2"># 更新当前的序列名称</span>
+                <span class="s1">sequence_name = line</span>
+                <span class="s1">sequence_data = []  </span><span class="s2"># 清空之前的序列数据</span>
+
+            <span class="s0">else</span><span class="s1">:</span>
+                <span class="s1">sequence_data.append(line)  </span><span class="s2"># 添加序列数据</span>
+
+        <span class="s2"># 最后一条序列的处理</span>
+        <span class="s0">if </span><span class="s1">sequence_name </span><span class="s0">and </span><span class="s1">any(keyword </span><span class="s0">in </span><span class="s1">sequence_name </span><span class="s0">for </span><span class="s1">keyword </span><span class="s0">in </span><span class="s1">keywords):</span>
+            <span class="s1">output.write(</span><span class="s3">f&quot;</span><span class="s4">{</span><span class="s1">sequence_name</span><span class="s4">}\n</span><span class="s3">&quot;</span><span class="s1">)</span>
+            <span class="s1">output.write(</span><span class="s3">&quot;&quot;</span><span class="s1">.join(sequence_data) + </span><span class="s3">&quot;</span><span class="s4">\n</span><span class="s3">&quot;</span><span class="s1">)</span>
+
+    <span class="s1">print(</span><span class="s3">f&quot;提取的序列已保存到 </span><span class="s4">{</span><span class="s1">output_file</span><span class="s4">}</span><span class="s3">&quot;</span><span class="s1">)</span>
+
+
+<span class="s0">if </span><span class="s1">__name__ == </span><span class="s3">&quot;__main__&quot;</span><span class="s1">:</span>
+    <span class="s2"># 获取命令行参数</span>
+    <span class="s1">fasta_file = sys.argv[</span><span class="s5">1</span><span class="s1">]  </span><span class="s2"># 输入的FASTA文件路径</span>
+    <span class="s1">txt_file = sys.argv[</span><span class="s5">2</span><span class="s1">]  </span><span class="s2"># 输入的TXT文件路径</span>
+    <span class="s1">output_file = sys.argv[</span><span class="s5">3</span><span class="s1">]  </span><span class="s2"># 输出的文件路径</span>
+
+    <span class="s2"># 调用函数执行提取操作</span>
+    <span class="s1">extract_sequences(fasta_file, txt_file, output_file)</span>
+</pre>
+</body>
+</html>
